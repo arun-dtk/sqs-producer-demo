@@ -24,10 +24,11 @@ const sendMessage = async (message) => {
             console.log(`Error: failed to enqueue message - ${err}`)
         }
     });
+    console.log('message sent')
     return;
 }
 
-const requestListener = (req, res, next) => {
+const requestListener = async (req, res, next) => {
     // const parsedURL = new URL(req.url, `http://localhost:${port}`);
       const parsedURL = url.parse(req.url, true);
     let urlPath = parsedURL.pathname;
@@ -35,7 +36,15 @@ const requestListener = (req, res, next) => {
 
     switch (urlPath) {
         case "":
-            sendMessage(parsedURL.query);
+            await sendMessage(parsedURL.query);
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.write(
+                JSON.stringify({
+                    message: "Message sent",
+                    code: 200,
+                })
+            );
+            res.end();
             break;
         default:
             res.setHeader("Access-Control-Allow-Origin", "*");
